@@ -1,0 +1,101 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width; initial-scale=1.0">
+<title>使用HTML5实现刮刮卡效果</title>
+ 
+<style type="text/css">
+#main{width: 500px; margin: 50px auto;}
+.demo{width:500px; margin:10px auto 20px auto; min-height:300px;}
+.msg{text-align:center; height:32px; line-height:32px; font-weight:bold; margin-top:50px}
+</style>
+</head>
+<!--[if lt IE 9]>
+  <script src="http://apps.bdimg.com/libs/html5shiv/3.7/html5shiv.min.js"></script>
+<![endif]-->
+<body>
+
+
+<div id="main">
+   <h2 >使用HTML5实现刮刮卡效果</h2>
+   <div style="margin-bottom:30px;">刮开红色部分有惊喜哦&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:void(0)" onClick="window.location.reload()">再来一次</a></div>
+   <div class="demo">
+   		<canvas style="color:#000; font-size:20px; font-weight:bold;">刮开有奖哦</canvas>
+   </div>
+</div>
+
+<script type="text/javascript">
+var bodyStyle = document.body.style;
+
+bodyStyle.mozUserSelect = 'none';
+bodyStyle.webkitUserSelect = 'none';
+
+var img = new Image();
+var canvas = document.querySelector('canvas');
+canvas.style.backgroundColor='transparent';
+canvas.style.position = 'absolute';
+var imgs = ['p_0.jpg','p_1.jpg'];
+var num = Math.floor(Math.random()*2);
+img.src = imgs[num];
+
+img.addEventListener('load', function(e) {
+	var ctx;
+    var w = img.width,
+    	h = img.height;
+    var offsetX = canvas.offsetLeft,
+    	offsetY = canvas.offsetTop;
+    var mousedown = false;
+
+    function layer(ctx) {
+        ctx.fillStyle = 'red';
+        ctx.fillRect(0, 0, w, h);
+    }
+
+    function eventDown(e){
+        e.preventDefault();
+        mousedown=true;
+    }
+
+    function eventUp(e){
+        e.preventDefault();
+        mousedown=false;
+    }
+
+    function eventMove(e){
+        e.preventDefault();
+        if(mousedown) {
+             if(e.changedTouches){
+                 e=e.changedTouches[e.changedTouches.length-1];
+             }
+             var x = (e.clientX + document.body.scrollLeft || e.pageX) - offsetX || 0,
+                 y = (e.clientY + document.body.scrollTop || e.pageY) - offsetY || 0;
+             with(ctx) {
+                 beginPath();
+                 arc(x, y, 10, 0, Math.PI * 2);
+                 fill();
+             }
+        }
+    }
+
+    canvas.width=w;
+    canvas.height=h;
+    canvas.style.backgroundImage='url('+img.src+')';
+    ctx=canvas.getContext('2d');
+    ctx.fillStyle='transparent';
+    ctx.fillRect(0, 0, w, h);
+    layer(ctx);
+
+    ctx.globalCompositeOperation = 'destination-out';
+
+    canvas.addEventListener('touchstart', eventDown);
+    canvas.addEventListener('touchend', eventUp);
+    canvas.addEventListener('touchmove', eventMove);
+    canvas.addEventListener('mousedown', eventDown);
+    canvas.addEventListener('mouseup', eventUp);
+    canvas.addEventListener('mousemove', eventMove);
+});
+</script>
+
+</body>
+</html>
